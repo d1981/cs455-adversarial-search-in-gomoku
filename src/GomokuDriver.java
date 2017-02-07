@@ -21,8 +21,8 @@ public class GomokuDriver {
    }
    
    public void run() {
-    	while(true) {          
+    	       
           think();     
-      }
+      
     }
 }
