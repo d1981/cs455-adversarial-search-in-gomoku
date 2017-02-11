@@ -39,7 +39,8 @@ public class GomokuDriver {
                    
                    String boardRow = rc.gridIn.readLine().toLowerCase();
                    for (int j=0; j<boardRow.length(); j++){
-                      gridArray[i-1][j] = boardRow.charAt(j); // gridArray[i-1] because the grid lines are actually coming from the second rc.gridLn.readLine(); call                   }
+                      gridArray[i-1][j] = boardRow.charAt(j); // gridArray[i-1] because the grid lines are actually coming from the second rc.gridLn.readLine(); call                   
+                   }
                }
                else {
                    player = rc.gridIn.readLine().toLowerCase();
