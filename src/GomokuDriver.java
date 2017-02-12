@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Timer;
 
 public class GomokuDriver {
    private static final int RACKETPORT = 17033;         // uses port 1237 on localhost  
@@ -60,45 +61,45 @@ public class GomokuDriver {
    }
    
    public static void think(){
-      ArrayList  status;
+      ArrayList status;
 
       // Start timer
+      long endTime = System.currentTimeMillis() + 2000;
+      while (System.currentTimeMillis() < endTime) {
       
+         //status = getStatus();
       
-      //status = getStatus();
+         char player = 'x';
+         char opponent = 'o';   
+         // if (String.valueOf(status.get(2)) == "o"){
+         //    player   = 'o';
+         //    opponent = 'x';
+         //}
       
-      char player = 'x';
-      char opponent = 'o';   
-     // if (String.valueOf(status.get(2)) == "o"){
-     //    player   = 'o';
-     //    opponent = 'x';
-     //}
+         char[][] grid = new char[11][11];
       
-      char[][] grid = new char[11][11];
-      
-      grid[0] = new char[]{' ','o',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[1] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[2] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[3] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[4] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[5] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[6] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[7] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[8] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[9] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[10] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[0] = new char[]{' ','o',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[1] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[2] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[3] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[4] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[5] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[6] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[7] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[8] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[9] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+         grid[10] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
 
-
       
-      // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
-      //AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
-      AlphaBeta ab = new AlphaBeta(grid, player, opponent);
-      int[] result = ab.AlphaBetaDecide().getFirstMove();
-      System.out.println(String.format("%d %d", result[0], result[1]));
-      
-      
-      // Send move
-      //rc.gridOut.println(String.format("%d %d", result[0], result[1]));
+         // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
+         //AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
+         AlphaBeta ab = new AlphaBeta(grid, player, opponent);
+         int[] result = ab.AlphaBetaDecide().getFirstMove();
+         System.out.println(String.format("%d %d", result[0], result[1]));
+            
+         // Send move
+         //rc.gridOut.println(String.format("%d %d", result[0], result[1]));
+      }
    }
    
    public void run() {
