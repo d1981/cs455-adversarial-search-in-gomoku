@@ -4,16 +4,15 @@ public class GomokuDriver {
    private static final int RACKETPORT = 17033;         // uses port 1237 on localhost  
    private static final int GRIDWIDTH  = 11;            // Width of the Gomoku Board
    private static final int GRIDHEIGHT = 11;            // Height of the Gomoku Board
-   protected RacketClient rc;
+   protected static RacketClient rc;
       
    public GomokuDriver(String h, int p){
       rc = new RacketClient(h, p);
    }
   
    public static void main(String[] args){
-      //GomokuDriver client = new GomokuDriver("localhost", RACKETPORT);
-   	//client.run();
-      think();
+      GomokuDriver client = new GomokuDriver("localhost", RACKETPORT);
+   	client.run();
    }
    
    /**
@@ -22,7 +21,7 @@ public class GomokuDriver {
    * 
    * Returns an arraylist of generic objects of the above 3 items
    */   
-   public ArrayList<Object> getStatus(){
+   public static ArrayList<Object> getStatus(){
       // Todo: on first run through, determine the size of the 2d array that represents the Gomoku board, instead of relying on constants      
    
       char[][] gridArray = new char[GRIDHEIGHT][GRIDWIDTH];
@@ -59,51 +58,53 @@ public class GomokuDriver {
       return objectList;
    }
    
-   public static void think(){
+   public static String think(int turn){
       ArrayList  status;
-
+      int depthlimit = 0;
+      
       // Start timer
       
       
-      //status = getStatus();
-      
+      status = getStatus();
       char player = 'x';
       char opponent = 'o';   
-     // if (String.valueOf(status.get(2)) == "o"){
-     //    player   = 'o';
-     //    opponent = 'x';
-     //}
+      if (String.valueOf(status.get(2)) == "o"){
+         player   = 'o';
+         opponent = 'x';
+      }
       
-      char[][] grid = new char[11][11];
-      
-      grid[0] = new char[]{' ','o',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[1] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[2] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[3] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[4] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[5] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[6] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[7] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[8] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[9] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-      grid[10] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
-
-
-      
+      if (turn < 5){
+         depthlimit = 3;
+      }
+      else if (turn > 5 && turn < 10){
+         depthlimit = 4;
+      }
+     
+      else if (turn > 15){
+         depthlimit = 5;
+      }
+          
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
-      //AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
-      AlphaBeta ab = new AlphaBeta(grid, player, opponent);
-      int[] result = ab.AlphaBetaDecide().getFirstMove();
-      System.out.println(String.format("%d %d", result[0], result[1]));
-      
-      
+      AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
+      BoardState result = ab.AlphaBetaDecide(depthlimit);   
+      System.out.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
+         
       // Send move
-      //rc.gridOut.println(String.format("%d %d", result[0], result[1]));
+      rc.gridOut.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
+      return (String)status.get(1);
    }
    
    public void run() {
+      int turn = 0;
+      String result = "";
+      
     	    while(true){
-             think();    
+             result = think(turn);    
+             if (!result.equals("continuing")){
+                break;
+             }
+             turn += 1; 
+             System.out.println(String.format("Turn: %s", turn));
           }
     }
 }

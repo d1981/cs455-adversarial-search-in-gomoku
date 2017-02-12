@@ -15,6 +15,7 @@ class BoardState{
       score = 0;
    }
    
+     
    public BoardState(int myscore){
       grid = null;
       firstMove = new int[2];
@@ -59,7 +60,7 @@ class BoardState{
               else if (grid[row][column-(length + 1)] != grid[row][column]){openness+=0;}
               else {openness+=1;};
            } catch (IndexOutOfBoundsException e){
-              System.err.println("Index error: " + e.getMessage());
+              //System.err.println("Index error: " + e.getMessage());
            }
                
            // check right hand side 
@@ -69,7 +70,7 @@ class BoardState{
               else {openness+=1;};
               
            } catch (IndexOutOfBoundsException e){
-              System.err.println("Index error: " + e.getMessage());
+              //System.err.println("Index error: " + e.getMessage());
            }
        }    
        return openness;
@@ -119,7 +120,7 @@ class BoardState{
                   }
                   opponentinarowcount=0;
                }
-            }
+            } // end myplayer check
             
             else if(grid[i][j] == myopponent){
                opponentinarowcount++;
@@ -141,7 +142,7 @@ class BoardState{
                   }
                   inarowcount=0;  
                }         
-            }
+            } // end myopponent check
             
             else if(grid[i][j] == ' '){
                if (inarowcount > 0){
@@ -160,7 +161,7 @@ class BoardState{
                      case 5: score = 1000000; break;
                   }
                   inarowcount=0;  
-               }
+               } 
                               
                if(opponentinarowcount > 0){ 
                   int openness = checkOpenness(i,j,0,opponentinarowcount);
@@ -172,7 +173,7 @@ class BoardState{
                              
                      case 3: if (openness == 1){opponentthreeinrow_open1++;}
                              else if (openness == 2){opponentthreeinrow_open2++;}
-                             break;
+                            break;
                      case 4: if (openness == 1){opponentfourinrow_open1++;}
                              else if (openness == 2){opponentfourinrow_open2++;}
                              break;
@@ -180,10 +181,47 @@ class BoardState{
                   }
                   opponentinarowcount=0;
                }               
-               inarowcount=0;
-               
+               inarowcount=0;  
+            } // end white space check
+   
+         }// Row changed, check both again
+
+            if(opponentinarowcount > 0){ 
+                     int openness = checkOpenness(i,grid[i].length,0,opponentinarowcount);
+                                  
+                     switch(opponentinarowcount){
+                        case 2: if (openness == 1){opponenttwoinrow_open1++;}
+                                else if (openness == 2){opponenttwoinrow_open2++;}
+                                break;
+                                
+                        case 3: if (openness == 1){opponentthreeinrow_open1++;}
+                                else if (openness == 2){opponentthreeinrow_open2++;}
+                                break;
+                        case 4: if (openness == 1){opponentfourinrow_open1++;}
+                                else if (openness == 2){opponentfourinrow_open2++;}
+                                break;
+                        case 5: score = -1000000; break;
+                     }
+                     opponentinarowcount=0;
             }
-         }
+                  
+            if (inarowcount > 0){
+                     int openness = checkOpenness(i,grid[i].length,0,opponentinarowcount);
+                     
+                     switch(inarowcount){
+                        case 2: if (openness == 1){twoinrow_open1++;}
+                                else if (openness==2){twoinrow_open2++;}
+                                break;
+                        case 3: if (openness == 1){threeinrow_open1++;}
+                                else if (openness==2){threeinrow_open2++;}
+                                break;
+                        case 4: if (openness == 1){fourinrow_open1++;}
+                                else if (openness==2){fourinrow_open2++;}
+                                break;
+                        case 5: score = 1000000; break;
+                     }
+                     inarowcount=0;  
+           }
       }
 
       score += twoinrow_open1*1 + threeinrow_open1*2 + fourinrow_open1*4;
