@@ -1,80 +1,127 @@
 import java.util.List;
 
 class AlphaBeta{
-   Node<String> dataTree;
-   
-
-   public static void main(String[] args){      
-      Node<Integer> dataTree   = new Node<Integer>(1000000); 
-      
-      Node<Integer> childNode1 = new Node<Integer>(-1000000, dataTree);
-      Node<Integer> childNode2 = new Node<Integer>(-1000000, dataTree);     
-      Node<Integer> childNode3 = new Node<Integer>(-1000000, dataTree);
-      
-      childNode1.setParent(dataTree);
-      childNode2.setParent(dataTree); 
-      childNode3.setParent(dataTree);
-   
-      Node<Integer> childNode1Child1 = new Node<Integer>(7, childNode1);
-      Node<Integer> childNode1Child2 = new Node<Integer>(2, childNode1);     
-      Node<Integer> childNode1Child3 = new Node<Integer>(4, childNode1);
-      
-      childNode1Child1.setParent(childNode1);
-      childNode1Child2.setParent(childNode1); 
-      childNode1Child3.setParent(childNode1);
-      
-      Node<Integer> childNode2Child1 = new Node<Integer>(1, childNode2);
-      Node<Integer> childNode2Child2 = new Node<Integer>(8, childNode2);     
-      Node<Integer> childNode2Child3 = new Node<Integer>(9, childNode2);
-      
-      childNode2Child1.setParent(childNode2);
-      childNode2Child2.setParent(childNode2); 
-      childNode2Child3.setParent(childNode2);
-      
-      Node<Integer> childNode3Child1 = new Node<Integer>(5, childNode3);
-      Node<Integer> childNode3Child2 = new Node<Integer>(6, childNode3);     
-      Node<Integer> childNode3Child3 = new Node<Integer>(7, childNode3);
-      
-      childNode3Child1.setParent(childNode3);
-      childNode3Child2.setParent(childNode3); 
-      childNode3Child3.setParent(childNode3);
-
-      System.out.println(AlphaBeta(dataTree));
-   }
-   
-   public static int AlphaBeta(Node node){
-       return maxValue(node, -Integer.MAX_VALUE, Integer.MAX_VALUE);
+   static BoardState ab_bs;
+   static char player;
+   static char opponent;
+   static int starTime;
+   static BoardState negative_board;
+   static BoardState positive_board;
+        
+   public AlphaBeta(char[][] gridArray, char myplayer, char myopponent){
+      ab_bs = new BoardState(gridArray, null);
+      player = myplayer;
+      opponent = myopponent; 
+      negative_board = new BoardState(-Integer.MAX_VALUE);
+      positive_board = new BoardState(Integer.MAX_VALUE);
    }   
    
-   public static int maxValue(Node node, int alpha, int beta){
-       int v;
-       if (node.isLeaf()){
-         return (int)node.getData();
+   public static BoardState AlphaBetaDecide(){
+      return maxValue(ab_bs, negative_board, positive_board, 0);
+   }
+      
+   public static BoardState maxValue(BoardState boardstate, BoardState alpha, BoardState beta, int depth){
+       BoardState v;
+       BoardState w;
+       boolean movesavailable;
+       
+       if (depth > 20  ){
+         return boardstate;
        }
        
-       v = -Integer.MAX_VALUE;; // Negative infinity
+       v = negative_board;; // Negative infinity
        
-       for (int i=0; i<node.children.size(); i++){
-           v = Math.max( (int) minValue( (Node) node.children.get(i), alpha, beta), v);
-           if (v >= beta){ return v;}
-           alpha = Math.max(alpha, v);
+       movesavailable = false;       
+       for (int i=0; i < boardstate.getGrid().length; i++){
+          for (int j=0; j < boardstate.getGrid()[i].length; j++){
+             
+             if(boardstate.getGrid()[i][j] == ' '){  
+                movesavailable = true;   
+                BoardState mutatedBoard;
+                                           
+                mutatedBoard = new BoardState(boardstate.getGrid(), new int[]{i,j});
+                mutatedBoard.mutateBoard(i,j, player);
+                                
+                w = minValue(mutatedBoard, alpha, beta, depth+1);
+                
+                // get the max between v and w
+                if (v.getScore() < w.evaluate(player,opponent) ){
+                   v = w;
+                }
+               
+                if (v.getScore() >= beta.getScore()){ return v;}
+                  
+                // get the max between alpha and v
+                if (alpha.getScore() < v.getScore()){
+                   alpha = v;
+                }
+             }
+          }
        }
+       
+       if (movesavailable == false){
+         return boardstate;
+       }
+              
+       //for (int i=0; i<node.children.size(); i++){
+       //    v = Math.max( (int) minValue( (Node) node.children.get(i), alpha, beta), v);
+       //    if (v >= beta){ return v;}
+       //   alpha = Math.max(alpha, v);
+       //}
+       
        return v;       
    }
    
-   public static int minValue(Node node, int alpha, int beta){
-       int v;
-       if (node.isLeaf()){
-         return (int)node.getData();
-       }
-
-       v = Integer.MAX_VALUE; // Positive infinity
+   public static BoardState minValue(BoardState boardstate, BoardState alpha, BoardState beta, int depth){
+       BoardState v;
+       BoardState w;
+       boolean movesavailable; 
+       movesavailable = false;
        
-       for (int i=0; i<node.children.size(); i++){
-           v = Math.min( (int) maxValue( (Node) node.children.get(i), alpha, beta), v);
-           if (v <= alpha){return v;}
-           beta=Math.min(beta, v);
+       if (depth > 20  ){
+         return boardstate;
        }
+       
+       v = positive_board; // Positive infinity
+       
+       
+       for (int i=0; i < boardstate.getGrid().length; i++){
+          for (int j=0; j < boardstate.getGrid()[i].length; j++){
+     
+             if(boardstate.getGrid()[i][j] == ' '){  
+                movesavailable = true;
+                BoardState mutatedBoard;
+
+                mutatedBoard = new BoardState(boardstate.getGrid(), boardstate.getFirstMove());
+                mutatedBoard.mutateBoard(i,j, opponent);
+                
+                w = maxValue(mutatedBoard, alpha, beta, depth+1);
+                
+                // get the min between v and w
+                if (v.getScore() > w.evaluate(player,opponent)){
+                   v = w;
+                }
+                
+                if (v.getScore() <= alpha.getScore()){
+                   return v;
+                }
+                
+                // get the min between beta and v
+                if (beta.getScore() > v.getScore()){
+                   beta = v;
+                }     
+             }
+          }
+       }
+       if (movesavailable == false){
+         return boardstate;
+       }
+       //for (int i=0; i<node.children.size(); i++){
+       //    v = Math.min( (int) maxValue( (Node) node.children.get(i), alpha, beta), v);
+       //   if (v <= alpha){return v;}
+       //    beta=Math.min(beta, v);
+       //}
+       
        return v;       
    }
 }

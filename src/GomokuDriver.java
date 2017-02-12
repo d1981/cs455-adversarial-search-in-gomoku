@@ -11,8 +11,9 @@ public class GomokuDriver {
    }
   
    public static void main(String[] args){
-      GomokuDriver client = new GomokuDriver("localhost", RACKETPORT);
-   	client.run();
+      //GomokuDriver client = new GomokuDriver("localhost", RACKETPORT);
+   	//client.run();
+      think();
    }
    
    /**
@@ -25,6 +26,7 @@ public class GomokuDriver {
       // Todo: on first run through, determine the size of the 2d array that represents the Gomoku board, instead of relying on constants      
    
       char[][] gridArray = new char[GRIDHEIGHT][GRIDWIDTH];
+            
       String gameStatus = "";
       String player = "";
       
@@ -57,23 +59,46 @@ public class GomokuDriver {
       return objectList;
    }
    
-   public void think(){
+   public static void think(){
       ArrayList  status;
 
       // Start timer
       
       
-      status = getStatus();
-
-      // Analyze status for features
+      //status = getStatus();
       
+      char player = 'x';
+      char opponent = 'o';   
+     // if (String.valueOf(status.get(2)) == "o"){
+     //    player   = 'o';
+     //    opponent = 'x';
+     //}
+      
+      char[][] grid = new char[11][11];
+      
+      grid[0] = new char[]{' ','o',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[1] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[2] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[3] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[4] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[5] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[6] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[7] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[8] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[9] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+      grid[10] = new char[]{' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
 
-      // Propogate moves / use Alpha Beta to determine best move before timer runs out
+
+      
+      // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
+      //AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
+      AlphaBeta ab = new AlphaBeta(grid, player, opponent);
+      int[] result = ab.AlphaBetaDecide().getFirstMove();
+      System.out.println(String.format("%d %d", result[0], result[1]));
       
       
       // Send move
-      
-            
+      //rc.gridOut.println(String.format("%d %d", result[0], result[1]));
    }
    
    public void run() {
