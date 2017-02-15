@@ -74,16 +74,15 @@ public class GomokuDriver {
       }
       
       if (turn < 5){
+         depthlimit = 2;
+      }
+      else if (turn > 5 ){
          depthlimit = 3;
       }
-      else if (turn > 5 && turn < 10){
+      else if (turn > 7 ){
          depthlimit = 4;
       }
      
-      else if (turn > 15){
-         depthlimit = 5;
-      }
-          
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
       AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
       BoardState result = ab.AlphaBetaDecide(depthlimit);   

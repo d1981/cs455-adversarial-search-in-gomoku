@@ -165,15 +165,19 @@ class BoardState{
                   switch(opponentinarowcount){
                      case 2: if (openness == 1){opponenttwoinrow_open1++;}
                              else if (openness == 2){opponenttwoinrow_open2++;}
+                             else if (openness == 0){score += 1;} // Block opponents moves!!! 
                              break;
                              
                      case 3: if (openness == 1){opponentthreeinrow_open1++;}
                              else if (openness == 2){opponentthreeinrow_open2++;}
+                             else if (openness == 0){score += 2;} // Block opponents moves!!! 
                              break;
                      case 4: if (openness == 1){opponentfourinrow_open1++;}
                              else if (openness == 2){opponentfourinrow_open2++;}
+                             else if (openness == 0){score += 3;} // Block opponents moves!!!                             
                              break;
                      case 5: score = -1000000; break;
+                     case 6: score = -1000000; break;
                   }
                   opponentinarowcount=0;
                }
@@ -196,6 +200,7 @@ class BoardState{
                              else if (openness==2){fourinrow_open2++;}
                              break;
                      case 5: score = 1000000; break;
+                     case 6: score = 1000000; break;
                   }
                   inarowcount=0;  
                }         
@@ -216,6 +221,8 @@ class BoardState{
                              else if (openness==2){fourinrow_open2++;}
                              break;
                      case 5: score = 1000000; break;
+                     case 6: score = 1000000; break;
+                     
                   }
                   inarowcount=0;  
                } 
@@ -226,15 +233,19 @@ class BoardState{
                   switch(opponentinarowcount){
                      case 2: if (openness == 1){opponenttwoinrow_open1++;}
                              else if (openness == 2){opponenttwoinrow_open2++;}
+                             else if (openness == 0){score += 1;} // Block opponents moves!!! 
                              break;
                              
                      case 3: if (openness == 1){opponentthreeinrow_open1++;}
                              else if (openness == 2){opponentthreeinrow_open2++;}
+                             else if (openness == 0){score += 2;} // Block opponents moves!!! 
                             break;
                      case 4: if (openness == 1){opponentfourinrow_open1++;}
                              else if (openness == 2){opponentfourinrow_open2++;}
+                             else if (openness == 0){score += 3;} // Block opponents moves!!! 
                              break;
                      case 5: score = -1000000; break;
+                     case 6: score = -1000000; break;
                   }
                   opponentinarowcount=0;
                }               
@@ -249,15 +260,19 @@ class BoardState{
                      switch(opponentinarowcount){
                         case 2: if (openness == 1){opponenttwoinrow_open1++;}
                                 else if (openness == 2){opponenttwoinrow_open2++;}
+                                else if (openness == 0){score += 1;} // Block opponents moves!!! 
                                 break;
                                 
                         case 3: if (openness == 1){opponentthreeinrow_open1++;}
                                 else if (openness == 2){opponentthreeinrow_open2++;}
+                                else if (openness == 0){score += 2;} // Block opponents moves!!! 
                                 break;
                         case 4: if (openness == 1){opponentfourinrow_open1++;}
                                 else if (openness == 2){opponentfourinrow_open2++;}
+                                else if (openness == 0){score += 3;} // Block opponents moves!!! 
                                 break;
                         case 5: score = -1000000; break;
+                        case 6: score = -1000000; break;
                      }
                      opponentinarowcount=0;
             }
@@ -276,6 +291,7 @@ class BoardState{
                                 else if (openness==2){fourinrow_open2++;}
                                 break;
                         case 5: score = 1000000; break;
+                        case 6: score = 1000000; break;
                      }
                      inarowcount=0;  
            }

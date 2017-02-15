@@ -42,7 +42,7 @@ class AlphaBeta{
                 mutatedBoard.evaluate(player, opponent);
                 
                 if (mutatedBoard.getScore() > 1000){ // terminal test
-                   return boardstate;
+                   return mutatedBoard;
                 }
                 
                 w = minValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
@@ -92,7 +92,7 @@ class AlphaBeta{
                 mutatedBoard.evaluate(player,opponent);
                 
                 if (mutatedBoard.getScore() < -1000){ //terminal test
-                   return boardstate;
+                   return mutatedBoard;
                 }
                 
                 w = maxValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
