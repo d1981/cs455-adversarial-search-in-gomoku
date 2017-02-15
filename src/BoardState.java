@@ -1,9 +1,16 @@
+import java.util.ArrayList;
+
 class BoardState{
    private char[][] grid; 
-   private int[] firstMove;
+   private ArrayList<int[]> moveChain;
    private int score; 
    
-   public BoardState(char[][] gridArray, int[] myFirstMove){
+   /**
+   * BoardState constructor
+   * Takes a 2d char array to represent the grid, a moveChain object and the current move for this 
+   * mutation
+   */
+   public BoardState(char[][] gridArray, ArrayList<int[]> moveChain, int[] mutateMove){
       grid = new char[gridArray.length][gridArray[0].length];
       
       // deep copy the gridArray values
@@ -11,14 +18,37 @@ class BoardState{
          System.arraycopy(gridArray[i], 0, grid[i], 0, gridArray[i].length );   
       }           
       
-      firstMove = myFirstMove;
+      if (moveChain != null){
+         // moveChain already instantiated
+         this.moveChain = moveChain;
+         moveChain.add(mutateMove);
+      } 
       score = 0;
    }
    
-     
+   /**
+   * Overloaded BoardState constructor
+   * For creating the initial AlphaBeta boardstate
+   */
+   public BoardState(char[][] gridArray, ArrayList<int[]> moveChain){
+      grid = new char[gridArray.length][gridArray[0].length];
+      
+      // deep copy the gridArray values
+      for (int i = 0; i<gridArray.length; i++){
+         System.arraycopy(gridArray[i], 0, grid[i], 0, gridArray[i].length );   
+      }           
+      
+      score = 0;
+   }
+   
+   /** 
+   * Overloaded BoardState constructor
+   * Used when creating a boardstate with just a score,
+   * for the +- infinite boardstates 
+   */
    public BoardState(int myscore){
       grid = null;
-      firstMove = new int[2];
+      moveChain = new ArrayList<int[]>();
       score = myscore;
    }
    
@@ -26,8 +56,9 @@ class BoardState{
       return grid;
    }
    
-   public int[] getFirstMove(){
-      return firstMove;
+  
+   public ArrayList<int[]> getMoveChain(){
+      return moveChain;
    }
    
    public int getScore(){     
@@ -37,12 +68,7 @@ class BoardState{
    public void setScore(int evaluatedscore){
       score = evaluatedscore;
    }
-   
-   public void setFirstMove(int row, int column){
-      firstMove[0] = row;
-      firstMove[1] = column;
-   }
-   
+      
    /**
    * Looks for openness on a run 
    * Returns 1 if one end is open, 2 if both ends are open and 0 if neither are open

@@ -1,4 +1,4 @@
-import java.util.List;
+import java.util.ArrayList;
 
 class AlphaBeta{
    static BoardState ab_bs;
@@ -34,15 +34,27 @@ class AlphaBeta{
           for (int j=0; j < boardstate.getGrid()[i].length; j++){
              
              if(boardstate.getGrid()[i][j] == ' '){     
+                ArrayList<int[]> moveChain;
                 movesavailable = true;
                 
+                // Create new move chains for the first nodes
+                // these will continue to get reused as they are passed down to 
+                // new boardstates. 
+                // This way a complete chain of moves that lead to a high value state 
+                // can be preserved. 
+                if (depth == 0){
+                    moveChain = new ArrayList<int[]>();
+                }
+                else {
+                    moveChain = boardstate.getMoveChain();
+                }                
                 BoardState mutatedBoard;                                           
-                mutatedBoard = new BoardState(boardstate.getGrid(), new int[]{i,j});
+                mutatedBoard = new BoardState(boardstate.getGrid(), moveChain, new int[]{i,j});
                 mutatedBoard.mutateBoard(i,j, player);
                 mutatedBoard.evaluate(player, opponent);
                 
                 if (mutatedBoard.getScore() > 1000){ // terminal test
-                   return boardstate;
+                   return mutatedBoard;
                 }
                 
                 w = minValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
@@ -87,12 +99,12 @@ class AlphaBeta{
                 movesavailable = true;
                 
                 BoardState mutatedBoard;
-                mutatedBoard = new BoardState(boardstate.getGrid(), boardstate.getFirstMove());
+                mutatedBoard = new BoardState(boardstate.getGrid(), boardstate.getMoveChain(), new int[]{i,j});
                 mutatedBoard.mutateBoard(i,j, opponent);
                 mutatedBoard.evaluate(player,opponent);
                 
                 if (mutatedBoard.getScore() < -1000){ //terminal test
-                   return boardstate;
+                   return mutatedBoard;
                 }
                 
                 w = maxValue(mutatedBoard, alpha, beta, depth+1, depthlimit);

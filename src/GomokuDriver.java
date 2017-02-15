@@ -74,23 +74,19 @@ public class GomokuDriver {
       }
       
       if (turn < 5){
+         depthlimit = 2;
+      }
+      else if (turn > 5 ){
          depthlimit = 3;
-      }
-      else if (turn > 5 && turn < 10){
-         depthlimit = 4;
-      }
-     
-      else if (turn > 15){
-         depthlimit = 5;
       }
           
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
       AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
       BoardState result = ab.AlphaBetaDecide(depthlimit);   
-      System.out.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
+      System.out.println(String.format("%d %d", result.getMoveChain().get(0)[0], result.getMoveChain().get(0)[1]));
          
       // Send move
-      rc.gridOut.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
+      rc.gridOut.println(String.format("%d %d", result.getMoveChain().get(0)[0], result.getMoveChain().get(0)[1]));
       return (String)status.get(1);
    }
    
