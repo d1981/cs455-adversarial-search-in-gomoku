@@ -196,10 +196,12 @@ class BoardState{
                      case 3: if (openness == 1){opponentthreeinrow_open1++;}
                              else if (openness == 2){opponentthreeinrow_open2++;}
                              break;
-                     case 4: if (openness == 1){opponentfourinrow_open1++;}
+                     case 4: if (openness == 1){opponentfourinrow_open1++; score+=1;}
                              else if (openness == 2){opponentfourinrow_open2++;}
+                             else if (openness == 0){score +=2;} // Block opponent wins
                              break;
                      case 5: score = -1000000; break;
+                     case 6: score = -2000000; break;
                   }
                   opponentinarowcount=0;
                }
@@ -222,6 +224,7 @@ class BoardState{
                              else if (openness==2){fourinrow_open2++;}
                              break;
                      case 5: score = 1000000; break;
+                     case 6: score = 1000000; break;
                   }
                   inarowcount=0;  
                }         
@@ -242,6 +245,7 @@ class BoardState{
                              else if (openness==2){fourinrow_open2++;}
                              break;
                      case 5: score = 1000000; break;
+                     case 6: score = 1000000; break;
                   }
                   inarowcount=0;  
                } 
@@ -257,10 +261,12 @@ class BoardState{
                      case 3: if (openness == 1){opponentthreeinrow_open1++;}
                              else if (openness == 2){opponentthreeinrow_open2++;}
                             break;
-                     case 4: if (openness == 1){opponentfourinrow_open1++;}
+                     case 4: if (openness == 1){opponentfourinrow_open1++;score += 1;}
                              else if (openness == 2){opponentfourinrow_open2++;}
+                             else if (openness == 0){score +=2;} // Block opponent wins
                              break;
                      case 5: score = -1000000; break;
+                     case 6: score = -2000000; break;
                   }
                   opponentinarowcount=0;
                }               
@@ -280,8 +286,9 @@ class BoardState{
                         case 3: if (openness == 1){opponentthreeinrow_open1++;}
                                 else if (openness == 2){opponentthreeinrow_open2++;}
                                 break;
-                        case 4: if (openness == 1){opponentfourinrow_open1++;}
+                        case 4: if (openness == 1){opponentfourinrow_open1++; score+=1;}
                                 else if (openness == 2){opponentfourinrow_open2++;}
+                                else if (openness == 0){score +=2;} // Block opponent wins
                                 break;
                         case 5: score = -1000000; break;
                      }
@@ -302,6 +309,7 @@ class BoardState{
                                 else if (openness==2){fourinrow_open2++;}
                                 break;
                         case 5: score = 1000000; break;
+                        case 6: score = 1000000; break;
                      }
                      inarowcount=0;  
            }
