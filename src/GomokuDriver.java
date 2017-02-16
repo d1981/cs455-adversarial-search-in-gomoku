@@ -68,7 +68,7 @@ public class GomokuDriver {
       status = getStatus();
       char player = 'x';
       char opponent = 'o';   
-      if (String.valueOf(status.get(2)) == "o"){
+      if (String.valueOf(status.get(2)).equals("o")){
          player   = 'o';
          opponent = 'x';
       }
@@ -79,10 +79,11 @@ public class GomokuDriver {
       else if (turn > 5 ){
          depthlimit = 3;
       }
-      else if (turn > 7 ){
+      else if (turn > 8 ){
          depthlimit = 4;
       }
-     
+
+          
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
       AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
       BoardState result = ab.AlphaBetaDecide(depthlimit);   
