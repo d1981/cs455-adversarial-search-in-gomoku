@@ -176,9 +176,9 @@ class BoardState{
                              else if (openness == 2){opponentfourinrow_open2++;}
                              else if (openness == 0){score += 3;} // Block opponents moves!!!                             
                              break;
-                     case 5: score -= 100000; break;
-                     //case 6: score -= 10; break;
-                     //case 7: score -= 10; break;
+                     case 5: score -= Integer.MAX_VALUE; break;
+                     case 6: score -= 10; break;
+                     case 7: score -= 10; break;
 
                   }
                   opponentinarowcount=0;
@@ -203,9 +203,9 @@ class BoardState{
                              else if (openness==2){fourinrow_open2++;}
                              else if (openness == 0){score -= 3;} // Block opponents moves!!!
                              break;
-                     case 5: score += 100000; break;
-                     //case 6: score += 10; break;
-                     //case 7: score += 10; break;
+                     case 5: score += Integer.MAX_VALUE; break;
+                     case 6: score += 10; break;
+                     case 7: score += 10; break;
                   }
                   inarowcount=0;  
                }         
@@ -227,9 +227,9 @@ class BoardState{
                              else if (openness==2){fourinrow_open2++;}
                              else if (openness == 0){score -= 3;} // Block opponents moves!!!
                              break;
-                     case 5: score += 100000; break;
-                     //case 6: score += 10; break;
-                     //case 7: score += 10; break;
+                     case 5: score += Integer.MAX_VALUE; break;
+                     case 6: score += 10; break;
+                     case 7: score += 10; break;
                      
                   }
                   inarowcount=0;  
@@ -251,9 +251,9 @@ class BoardState{
                              else if (openness == 2){opponentfourinrow_open2++;}
                              else if (openness == 0){score += 3;} // Block opponents moves!!! 
                              break;
-                     case 5: score -= 100000; break;
-                     //case 6: score -= 10; break;
-                     //case 7: score -= 10; break;
+                     case 5: score -= Integer.MAX_VALUE; break;
+                     case 6: score -= 10; break;
+                     case 7: score -= 10; break;
 
                   }
                   opponentinarowcount=0;
@@ -280,9 +280,9 @@ class BoardState{
                                 else if (openness == 2){opponentfourinrow_open2++;}
                                 else if (openness == 0){score += 3;} // Block opponents moves!!! 
                                 break;
-                        case 5: score -= 100000; break;
-                        //case 6: score -= 10; break;
-                        //case 7: score -= 10; break;
+                        case 5: score -= Integer.MAX_VALUE; break;
+                        case 6: score -= 10; break;
+                        case 7: score -= 10; break;
 
                      }
                      opponentinarowcount=0;
@@ -303,20 +303,20 @@ class BoardState{
                                 else if (openness==2){fourinrow_open2++;}
                                 else if (openness == 0){score -= 3;} // Block opponents moves!!!
                                 break;
-                        case 5: score += 100000; break;
-                        //case 6: score += 10; break;
-                        //case 7: score += 10; break;
+                        case 5: score += Integer.MAX_VALUE; break;
+                        case 6: score += 10; break;
+                        case 7: score += 10; break;
 
                      }
                      inarowcount=0;  
            }
       }
 
-      score += twoinrow_open1*1 + threeinrow_open1*2 + fourinrow_open1*10;
-      score += twoinrow_open2*2 + threeinrow_open2*4 + fourinrow_open2*100;
+      score += twoinrow_open1*1 + threeinrow_open1*3 + fourinrow_open1*9;
+      score += twoinrow_open2*2 + threeinrow_open2*4 + fourinrow_open2*10;
       
-      score -= opponenttwoinrow_open1*1 + opponentthreeinrow_open1*2 + opponentfourinrow_open1*10;
-      score -= opponenttwoinrow_open2*2 + opponentthreeinrow_open2*4 + opponentfourinrow_open2*100;
+      score -= opponenttwoinrow_open1*1 + opponentthreeinrow_open1*3 + opponentfourinrow_open1*9;
+      score -= opponenttwoinrow_open2*2 + opponentthreeinrow_open2*4 + opponentfourinrow_open2*10;
       
       
       setScore(score);
