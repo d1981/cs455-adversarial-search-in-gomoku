@@ -1,9 +1,10 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class GomokuDriver {
    private static final int RACKETPORT = 17033;         // uses port 1237 on localhost  
-   private static final int GRIDWIDTH  = 11;            // Width of the Gomoku Board
-   private static final int GRIDHEIGHT = 11;            // Height of the Gomoku Board
+   private static int gridWidth;            // Width of the Gomoku Board
+   private static int gridHeight;            // Height of the Gomoku Board
    protected static RacketClient rc;
       
    public GomokuDriver(String h, int p){
@@ -11,8 +12,22 @@ public class GomokuDriver {
    }
   
    public static void main(String[] args){
+      int turn = 0;
+
       GomokuDriver client = new GomokuDriver("localhost", RACKETPORT);
-   	client.run();
+   	client.think(turn);
+      
+      String result = "";
+      
+    	while(true){
+         result = think(turn);   
+         if (result.equals("continuing") == false){
+             System.out.println(result);
+             break;
+         }
+         turn++; 
+         
+      }
    }
    
    /**
@@ -21,54 +36,69 @@ public class GomokuDriver {
    * 
    * Returns an arraylist of generic objects of the above 3 items
    */   
-   public static ArrayList<Object> getStatus(){
-      // Todo: on first run through, determine the size of the 2d array that represents the Gomoku board, instead of relying on constants      
-   
-      char[][] gridArray = new char[GRIDHEIGHT][GRIDWIDTH];
-            
-      String gameStatus = "";
-      String player = "";
-      
+   public static ArrayList<Object> getStatus(){ 
+      char[][] gridArray;
+                  
       ArrayList objectList = new ArrayList<Object>();
-
+      List<String> inputStrings = new ArrayList<String>();
+      
       try {
-         for (int i=0; i<(GRIDHEIGHT + 2); i++){
-               if (i == 0){ 
-                   gameStatus = rc.gridIn.readLine().toLowerCase();
-               }
-               else if (i < GRIDHEIGHT + 1){
-                   
-                   String boardRow = rc.gridIn.readLine().toLowerCase();
-                   for (int j=0; j<boardRow.length(); j++){
-                      gridArray[i-1][j] = boardRow.charAt(j); // gridArray[i-1] because the grid lines are actually coming from the second rc.gridLn.readLine(); call                   
-                   }
-               }
-               else {
-                   player = rc.gridIn.readLine().toLowerCase();
-               }
-            }
-       }
-      catch(Exception e){
-         e.printStackTrace();
+         String nextLine;
+         
+         while ((nextLine = rc.gridIn.readLine()) != null){
+            inputStrings.add(nextLine.toLowerCase());
+            if (nextLine.equals("o") || nextLine.equals("x")){
+               break;
+            } 
+         }
       }
-         objectList.add(gridArray);
-         objectList.add(gameStatus);
-         objectList.add(player);
+      catch(Exception e){
+         //e.printStackTrace();
+         return null;
+      }
+      
+      gridHeight = inputStrings.size() -2;
+      gridWidth  = inputStrings.get(1).length();
+
+      gridArray = new char[gridHeight][gridWidth];
+       
+      for (int i=0; i < inputStrings.size() - 1; i++){
+         if (i > 0 && i < inputStrings.size()){
+            for (int j = 0; j < inputStrings.get(i).length(); j++){
+               gridArray[i-1][j] = inputStrings.get(i).charAt(j); // gridArray[i-1] because the grid lines are actually coming from the second rc.gridLn.readLine(); call
+            }
+         }
+      }
+      
+      objectList.add(gridArray);
+      objectList.add(inputStrings.get(0));
+      objectList.add(inputStrings.get(inputStrings.size() -1 ) );
       
       return objectList;
    }
    
    public static String think(int turn){
-      ArrayList  status;
+      ArrayList  data;
+      String status;
       int depthlimit = 0;
       
       // Start timer
       
       
-      status = getStatus();
+      data = getStatus();
+      status = (String)data.get(1);
+      
+      if (status == null){
+         System.out.println("Still waiting");
+         return "";
+      }
+      if (status == "win" || status == "lose" || status == "forfeit"){
+        return status;
+      }
+      
       char player = 'x';
       char opponent = 'o';   
-      if (String.valueOf(status.get(2)).equals("o")){
+      if (String.valueOf(data.get(2)).equals("o")){
          player   = 'o';
          opponent = 'x';
       }
@@ -79,32 +109,15 @@ public class GomokuDriver {
       else if (turn > 5 ){
          depthlimit = 3;
       }
-      else if (turn > 8 ){
-         depthlimit = 4;
-      }
-
-          
+                
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
-      AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);
+      AlphaBeta ab = new AlphaBeta((char[][])data.get(0), player, opponent);
       BoardState result = ab.AlphaBetaDecide(depthlimit);   
       System.out.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
-         
+      System.out.println(result.getScore());
+      System.out.println("\n");   
       // Send move
       rc.gridOut.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
-      return (String)status.get(1);
-   }
-   
-   public void run() {
-      int turn = 0;
-      String result = "";
-      
-    	    while(true){
-             result = think(turn);    
-             if (!result.equals("continuing")){
-                break;
-             }
-             turn += 1; 
-             System.out.println(String.format("Turn: %s", turn));
-          }
-    }
+      return status;
+  }
 }

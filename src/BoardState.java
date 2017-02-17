@@ -3,6 +3,17 @@ class BoardState{
    private int[] firstMove;
    private int score; 
    
+   int twoinrow_open1, threeinrow_open1, fourinrow_open1;
+   int twoinrow_open2, threeinrow_open2, fourinrow_open2;
+      
+   int opponenttwoinrow_open1, opponentthreeinrow_open1, opponentfourinrow_open1;
+   int opponenttwoinrow_open2, opponentthreeinrow_open2, opponentfourinrow_open2;
+   
+   int twoinrow_block2, threeinrow_block2, fourinrow_block2;
+   int opponenttwoinrow_block2, opponentthreeinrow_block2, opponentfourinrow_block2;
+
+   int opponent_kill_move, player_kill_move;
+   
    public BoardState(char[][] gridArray, int[] myFirstMove){
       grid = new char[gridArray.length][gridArray[0].length];
       
@@ -13,6 +24,7 @@ class BoardState{
       
       firstMove = myFirstMove;
       score = 0;
+      zeroAllCounts();
    }
    
      
@@ -20,12 +32,13 @@ class BoardState{
       grid = null;
       firstMove = new int[2];
       score = myscore;
+      zeroAllCounts();
    }
    
    public char[][] getGrid(){
       return grid;
    }
-   
+
    public int[] getFirstMove(){
       return firstMove;
    }
@@ -137,15 +150,57 @@ class BoardState{
       grid[row][column] = player;
    }
    
-   public int evaluate(char myplayer, char myopponent){
-      int twoinrow_open1, threeinrow_open1, fourinrow_open1;
-      int twoinrow_open2, threeinrow_open2, fourinrow_open2;
-      
-      int opponenttwoinrow_open1, opponentthreeinrow_open1, opponentfourinrow_open1;
-      int opponenttwoinrow_open2, opponentthreeinrow_open2, opponentfourinrow_open2;
-      
+   public void zeroAllCounts(){
       twoinrow_open1 = threeinrow_open1 = fourinrow_open1 = twoinrow_open2 = threeinrow_open2 = fourinrow_open2 = 0;
-      opponenttwoinrow_open1 = opponentthreeinrow_open1 = opponentfourinrow_open1 = opponenttwoinrow_open2 = opponentthreeinrow_open2 = opponentfourinrow_open2 =0;
+      twoinrow_block2 = threeinrow_block2 = fourinrow_block2 = 0;
+      opponenttwoinrow_open1 = opponentthreeinrow_open1 = opponentfourinrow_open1 = opponenttwoinrow_open2 = opponentthreeinrow_open2 = opponentfourinrow_open2 = 0;
+      opponenttwoinrow_block2 = opponentthreeinrow_block2 = opponentthreeinrow_block2 = opponentfourinrow_block2 = 0;
+      player_kill_move = opponent_kill_move = 0;
+   }
+   
+   public void tallyOpponentScore(int opponentinarowcount, int openness){
+      switch(opponentinarowcount){
+            case 2: if (openness == 1){opponenttwoinrow_open1++;}
+                    else if (openness == 2){opponenttwoinrow_open2++;}
+                    break;
+                    
+            case 3: if (openness == 1){opponentthreeinrow_open1++;}
+                    else if (openness == 2){opponentthreeinrow_open2++;}
+                    else if (openness == 0){opponentthreeinrow_block2++;} // Block opponents moves!!! 
+                    break;
+                    
+            case 4: if (openness == 1){opponentfourinrow_open1++;}
+                    else if (openness == 2){opponentfourinrow_open2++;}
+                    else if (openness == 0){opponentfourinrow_block2++;} // Block opponents moves!!!                             
+                    break;
+            case 5: opponent_kill_move++; break;
+            case 6: opponent_kill_move++; break;
+            case 7: opponent_kill_move++; break;
+      }
+   }
+   
+   public void tallyPlayerScore(int inarowcount, int openness){
+       int score=0;
+       switch(inarowcount){
+            case 2: if (openness == 1){twoinrow_open1++;}
+                    else if (openness==2){twoinrow_open2++;}
+                    break;
+            case 3: if (openness == 1){threeinrow_open1++;}
+                    else if (openness==2){threeinrow_open2++;}
+                    else if (openness == 0){threeinrow_block2++;} // Block opponents moves!!!
+                    break;
+            case 4: if (openness == 1){fourinrow_open1++;}
+                    else if (openness==2){fourinrow_open2++;}
+                    else if (openness == 0){fourinrow_block2++;} // Block opponents moves!!!
+                    break;
+            case 5: player_kill_move++; break;
+            case 6: player_kill_move++; break;
+            case 7: player_kill_move++; break;
+       }
+   }
+   
+   public int evaluate(char myplayer, char myopponent){
+      zeroAllCounts();
       
       int inarowcount = 0;
       int opponentinarowcount = 0;
@@ -161,26 +216,7 @@ class BoardState{
                
                if(opponentinarowcount > 0){ 
                   int openness = checkOpenness(i,j,0,opponentinarowcount);
-                               
-                  switch(opponentinarowcount){
-                     case 2: if (openness == 1){opponenttwoinrow_open1++;}
-                             else if (openness == 2){opponenttwoinrow_open2++;}
-                             break;
-                             
-                     case 3: if (openness == 1){opponentthreeinrow_open1++;}
-                             else if (openness == 2){opponentthreeinrow_open2++;}
-                             else if (openness == 0){score += 2;} // Block opponents moves!!! 
-                             break;
-                             
-                     case 4: if (openness == 1){opponentfourinrow_open1++;}
-                             else if (openness == 2){opponentfourinrow_open2++;}
-                             else if (openness == 0){score += 3;} // Block opponents moves!!!                             
-                             break;
-                     case 5: score -= Integer.MAX_VALUE; break;
-                     case 6: score -= 10; break;
-                     case 7: score -= 10; break;
-
-                  }
+                  tallyOpponentScore(opponentinarowcount, openness);             
                   opponentinarowcount=0;
                }
             } // end myplayer check
@@ -190,72 +226,21 @@ class BoardState{
                
                if (inarowcount > 0){
                   int openness = checkOpenness(i,j,0,inarowcount);
-                  
-                  switch(inarowcount){
-                     case 2: if (openness == 1){twoinrow_open1++;}
-                             else if (openness==2){twoinrow_open2++;}
-                             break;
-                     case 3: if (openness == 1){threeinrow_open1++;}
-                             else if (openness==2){threeinrow_open2++;}
-                             else if (openness == 0){score -= 2;} // Block opponents moves!!!
-                             break;
-                     case 4: if (openness == 1){fourinrow_open1++;}
-                             else if (openness==2){fourinrow_open2++;}
-                             else if (openness == 0){score -= 3;} // Block opponents moves!!!
-                             break;
-                     case 5: score += Integer.MAX_VALUE; break;
-                     case 6: score += 10; break;
-                     case 7: score += 10; break;
-                  }
+                  tallyPlayerScore(inarowcount, openness);                  
                   inarowcount=0;  
                }         
             } // end myopponent check
             
-            else if(grid[i][j] == ' '){
+            else if(grid[i][j] == ' '){ // Checking for a whitespace character, means we have to check both opponent and player tallies so far
                if (inarowcount > 0){
                   int openness = checkOpenness(i,j,0,opponentinarowcount);
-                  
-                  switch(inarowcount){
-                     case 2: if (openness == 1){twoinrow_open1++;}
-                             else if (openness==2){twoinrow_open2++;}
-                             break;
-                     case 3: if (openness == 1){threeinrow_open1++;}
-                             else if (openness==2){threeinrow_open2++;}
-                             else if (openness == 0){score -= 2;} // Block opponents moves!!!
-                             break;
-                     case 4: if (openness == 1){fourinrow_open1++;}
-                             else if (openness==2){fourinrow_open2++;}
-                             else if (openness == 0){score -= 3;} // Block opponents moves!!!
-                             break;
-                     case 5: score += Integer.MAX_VALUE; break;
-                     case 6: score += 10; break;
-                     case 7: score += 10; break;
-                     
-                  }
+                  tallyPlayerScore(inarowcount, openness);                  
                   inarowcount=0;  
                } 
                               
                if(opponentinarowcount > 0){ 
                   int openness = checkOpenness(i,j,0,opponentinarowcount);
-                               
-                  switch(opponentinarowcount){
-                     case 2: if (openness == 1){opponenttwoinrow_open1++;}
-                             else if (openness == 2){opponenttwoinrow_open2++;} 
-                             break;
-                             
-                     case 3: if (openness == 1){opponentthreeinrow_open1++;}
-                             else if (openness == 2){opponentthreeinrow_open2++;}
-                             else if (openness == 0){score += 2;} // Block opponents moves!!! 
-                            break;
-                     case 4: if (openness == 1){opponentfourinrow_open1++;}
-                             else if (openness == 2){opponentfourinrow_open2++;}
-                             else if (openness == 0){score += 3;} // Block opponents moves!!! 
-                             break;
-                     case 5: score -= Integer.MAX_VALUE; break;
-                     case 6: score -= 10; break;
-                     case 7: score -= 10; break;
-
-                  }
+                  tallyOpponentScore(opponentinarowcount, openness);
                   opponentinarowcount=0;
                }               
                inarowcount=0;  
@@ -265,79 +250,36 @@ class BoardState{
 
             if(opponentinarowcount > 0){ 
                      int openness = checkOpenness(i,grid[i].length,0,opponentinarowcount);
-                                  
-                     switch(opponentinarowcount){
-                        case 2: if (openness == 1){opponenttwoinrow_open1++;}
-                                else if (openness == 2){opponenttwoinrow_open2++;}
-                                else if (openness == 0){score += 1;} // Block opponents moves!!! 
-                                break;
-                                
-                        case 3: if (openness == 1){opponentthreeinrow_open1++;}
-                                else if (openness == 2){opponentthreeinrow_open2++;}
-                                else if (openness == 0){score += 2;} // Block opponents moves!!! 
-                                break;
-                        case 4: if (openness == 1){opponentfourinrow_open1++; score -= 10000;}
-                                else if (openness == 2){opponentfourinrow_open2++;}
-                                else if (openness == 0){score += 3;} // Block opponents moves!!! 
-                                break;
-                        case 5: score -= Integer.MAX_VALUE; break;
-                        case 6: score -= 10; break;
-                        case 7: score -= 10; break;
-
-                     }
+                     tallyOpponentScore(opponentinarowcount, openness);
                      opponentinarowcount=0;
             }
                   
             if (inarowcount > 0){
                      int openness = checkOpenness(i,grid[i].length,0,opponentinarowcount);
-                     
-                     switch(inarowcount){
-                        case 2: if (openness == 1){twoinrow_open1++;}
-                                else if (openness==2){twoinrow_open2++;}
-                                break;
-                        case 3: if (openness == 1){threeinrow_open1++;}
-                                else if (openness==2){threeinrow_open2++;}
-                                else if (openness == 0){score -= 2;} // Block opponents moves!!!
-                                break;
-                        case 4: if (openness == 1){fourinrow_open1++;}
-                                else if (openness==2){fourinrow_open2++;}
-                                else if (openness == 0){score -= 3;} // Block opponents moves!!!
-                                break;
-                        case 5: score += Integer.MAX_VALUE; break;
-                        case 6: score += 10; break;
-                        case 7: score += 10; break;
-
-                     }
+                     tallyPlayerScore(inarowcount, openness);
                      inarowcount=0;  
            }
       }
-
-      score += twoinrow_open1*1 + threeinrow_open1*3 + fourinrow_open1*9;
+      
+      if (opponent_kill_move > 0){
+         setScore(-Integer.MAX_VALUE);
+         return score;
+      }
+      if (player_kill_move > 0 ){
+         setScore(Integer.MAX_VALUE);
+         return score;
+      }
+      
+      score += twoinrow_open1 + threeinrow_open1*3 + fourinrow_open1*9; 
       score += twoinrow_open2*2 + threeinrow_open2*4 + fourinrow_open2*10;
+      score += opponentthreeinrow_block2 + opponentfourinrow_block2*2;
       
-      score -= opponenttwoinrow_open1*1 + opponentthreeinrow_open1*3 + opponentfourinrow_open1*9;
+      score -= opponenttwoinrow_open1 + opponentthreeinrow_open1*3 + opponentfourinrow_open1*9;
       score -= opponenttwoinrow_open2*2 + opponentthreeinrow_open2*4 + opponentfourinrow_open2*10;
-      
+      score -= threeinrow_block2 + fourinrow_block2*2;
       
       setScore(score);
       
       return score;
    }
-   
-   //public interateMove(char player){
-   //
-   //}
-   
-   /**
-   public static void main(String[] args){
-      char[][] grid = new char[11][11];
-      
-      grid[0] = new char[]{'o','x','x','x','x','o','o','o','x','x',' '};
-          
-      BoardState bs = new BoardState(grid);
-      
-      System.out.println(bs.evaluate('x','o'));
-   
-   }
-   */
 }

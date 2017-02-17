@@ -23,32 +23,32 @@ class AlphaBeta{
    public static BoardState maxValue(BoardState boardstate, BoardState alpha, BoardState beta, int depth, int depthlimit){
        BoardState v;
        BoardState w;
-       boolean movesavailable;
-              
-       v = negative_board;; // Negative infinity
-       if (depth > depthlimit){
+       
+       if (depth > depthlimit){ // terminal test
           return boardstate;
        }
-       movesavailable = false;
+          
+       v = negative_board;; // Negative infinity
+       
        for (int i=0; i < boardstate.getGrid().length; i++){
           for (int j=0; j < boardstate.getGrid()[i].length; j++){
              
              if(boardstate.getGrid()[i][j] == ' '){     
-                movesavailable = true;
-                
-                BoardState mutatedBoard;                                           
-                mutatedBoard = new BoardState(boardstate.getGrid(), new int[]{i,j});
-                mutatedBoard.mutateBoard(i,j, player);
-                mutatedBoard.evaluate(player, opponent);
-                
-                if (mutatedBoard.getScore() > 1000){ // terminal test
-                   return mutatedBoard;
+                BoardState mutatedBoard;                            
+                int[] thefirstmove;
+                thefirstmove = boardstate.getFirstMove();
+                if (thefirstmove == null){
+                   thefirstmove = new int[]{i,j};
                 }
                 
+                mutatedBoard = new BoardState(boardstate.getGrid(), thefirstmove);
+                mutatedBoard.mutateBoard(i,j, player);
+                mutatedBoard.evaluate(player, opponent);
+                                
                 w = minValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
-                
+                                
                 // get the max between v and w
-                if (v.getScore() < w.getScore() ){
+                if (w.getScore() > v.getScore() || (w.getScore() >= v.getScore() && v.getGrid() == null)){
                    v = w;
                 }
                
@@ -57,48 +57,39 @@ class AlphaBeta{
                 }
                   
                 // get the max between alpha and v
-                if (alpha.getScore() < v.getScore()){
+                if (v.getScore() > alpha.getScore()){
                    alpha = v;
                 }
              }
           }
        }
-       if (movesavailable == false){
-          return boardstate;
-       }                      
+                           
        return v;       
    }
    
    public static BoardState minValue(BoardState boardstate, BoardState alpha, BoardState beta, int depth, int depthlimit){
        BoardState v;
        BoardState w;
-       boolean movesavailable; 
-                     
-       v = positive_board; // Positive infinity
-       if (depth > depthlimit){
+       
+       if (depth > depthlimit){ // terminal test
           return boardstate;
        }
-       
-       movesavailable = false;
+            
+       v = positive_board; // Positive infinity       
+              
        for (int i=0; i < boardstate.getGrid().length; i++){
           for (int j=0; j < boardstate.getGrid()[i].length; j++){
      
              if(boardstate.getGrid()[i][j] == ' '){  
-                movesavailable = true;
-                
                 BoardState mutatedBoard;
                 mutatedBoard = new BoardState(boardstate.getGrid(), boardstate.getFirstMove());
                 mutatedBoard.mutateBoard(i,j, opponent);
                 mutatedBoard.evaluate(player,opponent);
-                
-                if (mutatedBoard.getScore() < -1000){ //terminal test
-                   return mutatedBoard;
-                }
-                
+               
                 w = maxValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
-                
+                               
                 // get the min between v and w
-                if (v.getScore() > w.getScore()){
+                if (w.getScore() < v.getScore() || (w.getScore() <= v.getScore() && v.getGrid() == null)){
                    v = w;
                 }
                 
@@ -107,15 +98,17 @@ class AlphaBeta{
                 }
                 
                 // get the min between beta and v
-                if (beta.getScore() > v.getScore()){
+                if (v.getScore() < beta.getScore()){
                    beta = v;
-                }     
+                }
+   
              }
           }
        }
-       if (movesavailable == false){
-          return boardstate;
-       }        
-       return v;       
+       
+           
+       return v;   
+       
+    
    }
 }
