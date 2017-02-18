@@ -1,30 +1,48 @@
 import java.util.List;
+import java.util.Timer;
 
+/**
+ * class AlphaBeta
+ * 
+ * The Alpha Beta Algorithm 
+ *
+ * Implemented from psuedo-code found in Artificial Intelligence: A Modern Approach, ch 5. 
+ * Works with the BoardState class
+ *
+ *@date:    2-17-17
+ *@version: Beta 0.1
+ */
 class AlphaBeta{
    static BoardState ab_bs;
    static char player;
    static char opponent;
-   static int starTime;
+   static long startTime;
    static BoardState negative_board;
    static BoardState positive_board;
-        
+
    public AlphaBeta(char[][] gridArray, char myplayer, char myopponent){
       ab_bs = new BoardState(gridArray, null);
       player = myplayer;
       opponent = myopponent; 
       negative_board = new BoardState(-Integer.MAX_VALUE);
       positive_board = new BoardState(Integer.MAX_VALUE);
+      startTime = System.currentTimeMillis();
    }   
    
    public static BoardState AlphaBetaDecide(int depthlimit){
-      return maxValue(ab_bs, negative_board, positive_board, 0, depthlimit);
+      BoardState b = maxValue(ab_bs, negative_board, positive_board, 0, depthlimit);
+      System.out.println(String.format("Move took: %d ms", System.currentTimeMillis() - startTime));
+      return b;
    }
-      
+   
+   /** Alpha Beta maximizer
+   *
+   */
    public static BoardState maxValue(BoardState boardstate, BoardState alpha, BoardState beta, int depth, int depthlimit){
        BoardState v;
        BoardState w;
        
-       if (depth > depthlimit){ // terminal test
+       if (depth > depthlimit || (System.currentTimeMillis() - startTime) > 1800){ // terminal test and timeout
           return boardstate;
        }
           
@@ -47,7 +65,10 @@ class AlphaBeta{
                                 
                 w = minValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
                                 
-                // get the max between v and w
+                // get the min between v and w
+                // This was a huge pain in the ass to catch. Because I wanted a REAL boardstate, had to implement this
+                // with the secondary check. Otherwise, it would just modify v all the way down the board
+                // or worse, return the infinite board
                 if (w.getScore() > v.getScore() || (w.getScore() >= v.getScore() && v.getGrid() == null)){
                    v = w;
                 }
@@ -62,16 +83,18 @@ class AlphaBeta{
                 }
              }
           }
-       }
-                           
+       }                         
        return v;       
    }
    
+   /** Alpha Beta minimizer
+   *
+   */
    public static BoardState minValue(BoardState boardstate, BoardState alpha, BoardState beta, int depth, int depthlimit){
        BoardState v;
        BoardState w;
        
-       if (depth > depthlimit){ // terminal test
+       if (depth > depthlimit || (System.currentTimeMillis() - startTime) > 1800){ // terminal test
           return boardstate;
        }
             
@@ -89,7 +112,10 @@ class AlphaBeta{
                 w = maxValue(mutatedBoard, alpha, beta, depth+1, depthlimit);
                                
                 // get the min between v and w
-                if (w.getScore() < v.getScore() || (w.getScore() <= v.getScore() && v.getGrid() == null)){
+                // This was a huge pain in the ass to catch. Because I wanted a REAL boardstate, had to implement this
+                // with the secondary check. Otherwise, it would just modify v all the way down the board
+                // or worse, return the infinite board
+                if (w.getScore() < v.getScore() || (w.getScore() <= v.getScore() && v.getGrid() == null)){  
                    v = w;
                 }
                 
@@ -105,10 +131,6 @@ class AlphaBeta{
              }
           }
        }
-       
-           
        return v;   
-       
-    
    }
 }

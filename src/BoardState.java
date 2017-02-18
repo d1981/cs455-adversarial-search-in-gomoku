@@ -1,3 +1,12 @@
+/**
+ * class BoardState maintains information about specific boardstates. 
+ *   It calculates the utility value of each state and has methods 
+ *   to mutate itself for the next state.
+ *
+ *@author:  Josh Kapple
+ *@date:    2-17-17
+ *@version: Beta 0.1
+ */
 class BoardState{
    private char[][] grid; 
    private int[] firstMove;
@@ -27,7 +36,7 @@ class BoardState{
       zeroAllCounts();
    }
    
-     
+   // overloaded constructor to deal with creating the infinite boards
    public BoardState(int myscore){
       grid = null;
       firstMove = new int[2];
@@ -146,6 +155,7 @@ class BoardState{
        return openness;
    }
    
+   // Setter for adding another move to the board
    public void mutateBoard(int row, int column, char player){
       grid[row][column] = player;
    }
@@ -174,8 +184,8 @@ class BoardState{
                     else if (openness == 0){opponentfourinrow_block2++;} // Block opponents moves!!!                             
                     break;
             case 5: opponent_kill_move++; break;
-            case 6: opponent_kill_move++; break;
-            case 7: opponent_kill_move++; break;
+            //case 6: opponent_kill_move++; break;
+            //case 7: opponent_kill_move++; break;
       }
    }
    
@@ -194,8 +204,8 @@ class BoardState{
                     else if (openness == 0){fourinrow_block2++;} // Block opponents moves!!!
                     break;
             case 5: player_kill_move++; break;
-            case 6: player_kill_move++; break;
-            case 7: player_kill_move++; break;
+            //case 6: player_kill_move++; break;
+            //case 7: player_kill_move++; break;
        }
    }
    
@@ -259,7 +269,63 @@ class BoardState{
                      tallyPlayerScore(inarowcount, openness);
                      inarowcount=0;  
            }
-      }
+      } // end horizontal
+      
+      // Evaluate the vertical rows for 2,3,4 or 5 in a row matches
+      // probably a lot more effecient ways of doing this and the horizontal check at once 
+      // but one person can only do so much. 
+      for (int i=0; i < grid.length; i++){
+         for (int j=0; j < grid.length; j++){
+            if (grid[j][i] == myplayer){
+               
+               inarowcount++;
+               
+               if(opponentinarowcount > 0){ 
+                  int openness = checkOpenness(i,j,1,opponentinarowcount);
+                  tallyOpponentScore(opponentinarowcount, openness);             
+                  opponentinarowcount=0;
+               }
+            } // end myplayer check
+            
+            else if(grid[i][j] == myopponent){
+               opponentinarowcount++;
+               
+               if (inarowcount > 0){
+                  int openness = checkOpenness(i,j,1,inarowcount);
+                  tallyPlayerScore(inarowcount, openness);                  
+                  inarowcount=0;  
+               }         
+            } // end myopponent check
+            
+            else if(grid[i][j] == ' '){ // Checking for a whitespace character, means we have to check both opponent and player tallies so far
+               if (inarowcount > 0){
+                  int openness = checkOpenness(i,j,1,opponentinarowcount);
+                  tallyPlayerScore(inarowcount, openness);                  
+                  inarowcount=0;  
+               } 
+                              
+               if(opponentinarowcount > 0){ 
+                  int openness = checkOpenness(i,j,1,opponentinarowcount);
+                  tallyOpponentScore(opponentinarowcount, openness);
+                  opponentinarowcount=0;
+               }               
+               inarowcount=0;  
+            } // end white space check
+   
+         }// Row changed, check both again
+
+            if(opponentinarowcount > 0){ 
+                     int openness = checkOpenness(i,grid[i].length,1,opponentinarowcount);
+                     tallyOpponentScore(opponentinarowcount, openness);
+                     opponentinarowcount=0;
+            }
+                  
+            if (inarowcount > 0){
+                     int openness = checkOpenness(i,grid[i].length,1,opponentinarowcount);
+                     tallyPlayerScore(inarowcount, openness);
+                     inarowcount=0;  
+           }
+      } // end vertical
       
       if (opponent_kill_move > 0){
          setScore(-Integer.MAX_VALUE);
@@ -270,13 +336,13 @@ class BoardState{
          return score;
       }
       
-      score += twoinrow_open1 + threeinrow_open1*3 + fourinrow_open1*9; 
-      score += twoinrow_open2*2 + threeinrow_open2*4 + fourinrow_open2*10;
-      score += opponentthreeinrow_block2 + opponentfourinrow_block2*2;
+      score += twoinrow_open1   + threeinrow_open1*100 + fourinrow_open1*500; 
+      score += twoinrow_open2*2 + threeinrow_open2*20 + fourinrow_open2*10000;
+      score += opponentthreeinrow_block2*1000 + opponentfourinrow_block2*20000;
       
-      score -= opponenttwoinrow_open1 + opponentthreeinrow_open1*3 + opponentfourinrow_open1*9;
-      score -= opponenttwoinrow_open2*2 + opponentthreeinrow_open2*4 + opponentfourinrow_open2*10;
-      score -= threeinrow_block2 + fourinrow_block2*2;
+      score -= (opponenttwoinrow_open1   + opponentthreeinrow_open1*100 + opponentfourinrow_open1*500);
+      score -= (opponenttwoinrow_open2*2 + opponentthreeinrow_open2*20 + opponentfourinrow_open2*10000);
+      score -= (threeinrow_block2*1000 + fourinrow_block2*2*20000);
       
       setScore(score);
       

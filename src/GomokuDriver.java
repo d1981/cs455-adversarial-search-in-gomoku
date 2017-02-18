@@ -1,10 +1,19 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * class Gomoku Driver
+ * 
+ * Main program for playing the Gomoku server game
+ *
+ *@author:  Josh Kapple
+ *@date:    2-17-17
+ *@version: Beta 0.1
+ */
 public class GomokuDriver {
    private static final int RACKETPORT = 17033;         // uses port 1237 on localhost  
-   private static int gridWidth;            // Width of the Gomoku Board
-   private static int gridHeight;            // Height of the Gomoku Board
+   private static int gridWidth;                        // Width of the Gomoku Board
+   private static int gridHeight;                       // Height of the Gomoku Board
    protected static RacketClient rc;
       
    public GomokuDriver(String h, int p){
@@ -26,7 +35,6 @@ public class GomokuDriver {
              break;
          }
          turn++; 
-         
       }
    }
    
@@ -34,6 +42,8 @@ public class GomokuDriver {
    * Parses the strings from the server into 
    * 2d char array for analyzing, String for gamestatus and String for player identification
    * 
+   * Adapts to different grid sizes from the server
+   *
    * Returns an arraylist of generic objects of the above 3 items
    */   
    public static ArrayList<Object> getStatus(){ 
@@ -77,13 +87,14 @@ public class GomokuDriver {
       return objectList;
    }
    
+   /**
+   *  think is basically the loop body for getting information from the 
+   *  server and acting upon it. 
+   */
    public static String think(int turn){
       ArrayList  data;
       String status;
       int depthlimit = 0;
-      
-      // Start timer
-      
       
       data = getStatus();
       status = (String)data.get(1);
@@ -96,6 +107,8 @@ public class GomokuDriver {
         return status;
       }
       
+      
+      // Setting our character from the server
       char player = 'x';
       char opponent = 'o';   
       if (String.valueOf(data.get(2)).equals("o")){
@@ -103,11 +116,11 @@ public class GomokuDriver {
          opponent = 'x';
       }
       
-      if (turn < 5){
-         depthlimit = 2;
+      if (turn < 3){
+         depthlimit = 1;
       }
-      else if (turn > 5 ){
-         depthlimit = 3;
+      else if (turn > 3 ){
+         depthlimit = 4;
       }
                 
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
@@ -116,6 +129,7 @@ public class GomokuDriver {
       System.out.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
       System.out.println(result.getScore());
       System.out.println("\n");   
+      
       // Send move
       rc.gridOut.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
       return status;
