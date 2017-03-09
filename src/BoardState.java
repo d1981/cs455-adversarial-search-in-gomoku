@@ -23,8 +23,7 @@ class BoardState{
    int opponenttwoinrow_block2, opponentthreeinrow_block2, opponentfourinrow_block2;
 
    int opponent_kill_move, player_kill_move;
-   
-   
+
    public BoardState(char[][] gridArray, int[] myFirstMove, int myscore, int depthReached){
       grid = new char[gridArray.length][gridArray[0].length];
       
@@ -254,7 +253,7 @@ class BoardState{
             
             else if(grid[i][j] == ' '){ // Checking for a whitespace character, means we have to check both opponent and player tallies so far
                if (inarowcount > 0){
-                  int openness = checkOpenness(i,j,0,opponentinarowcount);
+                  int openness = checkOpenness(i,j,0,inarowcount);
                   tallyPlayerScore(inarowcount, openness);                  
                   inarowcount=0;  
                } 
@@ -276,7 +275,7 @@ class BoardState{
             }
                   
             if (inarowcount > 0){
-                     int openness = checkOpenness(i,grid[i].length,0,opponentinarowcount);
+                     int openness = checkOpenness(i,grid[i].length,0,inarowcount);
                      tallyPlayerScore(inarowcount, openness);
                      inarowcount=0;  
            }
@@ -311,7 +310,7 @@ class BoardState{
             
             else if(grid[j][i] == ' '){ // Checking for a whitespace character, means we have to check both opponent and player tallies so far
                if (inarowcount > 0){
-                  int openness = checkOpenness(j,i,1,opponentinarowcount);
+                  int openness = checkOpenness(j,i,1,inarowcount);
                   tallyPlayerScore(inarowcount, openness);                  
                   inarowcount=0;  
                } 
@@ -333,7 +332,7 @@ class BoardState{
             }
                   
             if (inarowcount > 0){
-                     int openness = checkOpenness(0,grid[i].length,1,opponentinarowcount);
+                     int openness = checkOpenness(0,grid[i].length,1,inarowcount);
                      tallyPlayerScore(inarowcount, openness);
                      inarowcount=0;  
            }
@@ -347,9 +346,24 @@ class BoardState{
          setScore(Integer.MAX_VALUE);
          return score;
       }
+      /*
+      System.out.println(String.format("twoinrow_open1: %d", twoinrow_open1));
+      System.out.println(String.format("twoinrow_open2: %d", twoinrow_open2));
+      System.out.println(String.format("threeinrow_open1: %d", threeinrow_open1));
+      System.out.println(String.format("threeinrow_open2: %d", threeinrow_open2));
+      System.out.println(String.format("fourinrow_open1: %d", fourinrow_open1));
+      System.out.println(String.format("fourinrow_open2: %d", fourinrow_open2));
+      System.out.println(String.format("-------------------"));
+      System.out.println(String.format("opponenttwoinrow_open1: %d", opponenttwoinrow_open1));
+      System.out.println(String.format("opponenttwoinrow_open2: %d", opponenttwoinrow_open2));
+      System.out.println(String.format("opponentthreeinrow_open1: %d", opponentthreeinrow_open1));
+      System.out.println(String.format("opponentthreeinrow_open2: %d", opponentthreeinrow_open2));
+      System.out.println(String.format("opponentfourinrow_open1: %d", opponentfourinrow_open1));
+      System.out.println(String.format("opponentfourinrow_open2: %d", opponentfourinrow_open2));
+      */
       
-      score += twoinrow_open1   + threeinrow_open1*100 + fourinrow_open1*1000; 
-      score += twoinrow_open2*2 + threeinrow_open2*200 + fourinrow_open2*2000;
+      score += twoinrow_open1   + threeinrow_open1*100 + fourinrow_open1*2000; 
+      score += twoinrow_open2*2 + threeinrow_open2*200 + fourinrow_open2*4000;
       score += opponentthreeinrow_block2*4000 + opponentfourinrow_block2*800000;
       
       score -= (opponenttwoinrow_open1   + opponentthreeinrow_open1*100 + opponentfourinrow_open1*1000);
