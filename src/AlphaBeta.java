@@ -45,7 +45,7 @@ class AlphaBeta{
        BoardState w;
        boardstate.increaseMaxDepth();
        
-       if (depth > depthlimit || (System.currentTimeMillis() - startTime) > 1800){ // terminal test and timeout
+       if (depth > depthlimit || (System.currentTimeMillis() - startTime) > 1900){ // terminal test and timeout
          return boardstate;
        }
           
@@ -98,7 +98,7 @@ class AlphaBeta{
        BoardState w;
        boardstate.increaseMaxDepth();
        
-       if (depth > depthlimit || (System.currentTimeMillis() - startTime) > 1800){ // terminal test
+       if (depth > depthlimit || (System.currentTimeMillis() - startTime) > 1900){ // terminal test
           return boardstate;
        }
             

@@ -11,25 +11,33 @@ import java.util.List;
  *@version: Beta 0.1
  */
 public class GomokuDriver {
-   private static final int RACKETPORT = 17033;         // uses port 1237 on localhost  
+   private static final int RACKETPORT = 17033;         // uses port  on localhost  
    private static int gridWidth;                        // Width of the Gomoku Board
    private static int gridHeight;                       // Height of the Gomoku Board
-   protected static RacketClient rc;
-      
+   protected RacketClient rc;
+   
+   public int getGridWidth(){
+       return gridWidth;
+   }
+   
+   public int getGridHeight(){
+       return gridHeight;
+   }
+   
    public GomokuDriver(String h, int p){
       rc = new RacketClient(h, p);
    }
-  
+   
+   /*
    public static void main(String[] args){
       int turn = 0;
 
       GomokuDriver client = new GomokuDriver("localhost", RACKETPORT);
-   	client.think(turn);
       
       String result = "";
       
     	while(true){
-         result = think(turn);   
+         result = client.think(turn);   
          if (result.equals("continuing") == false){
              System.out.println(result);
              break;
@@ -37,6 +45,7 @@ public class GomokuDriver {
          turn++; 
       }
    }
+   */
    
    /**
    * Parses the strings from the server into 
@@ -46,7 +55,7 @@ public class GomokuDriver {
    *
    * Returns an arraylist of generic objects of the above 3 items
    */   
-   public static ArrayList<Object> getStatus(){ 
+   public ArrayList<Object> getStatus(){ 
       char[][] gridArray;
                   
       ArrayList objectList = new ArrayList<Object>();
@@ -55,7 +64,7 @@ public class GomokuDriver {
       try {
          String nextLine;
          
-         while ((nextLine = rc.gridIn.readLine()) != null){
+         while ((nextLine = this.rc.gridIn.readLine()) != null){
             inputStrings.add(nextLine.toLowerCase());
             if (nextLine.equals("o") || nextLine.equals("x")){
                break;
@@ -91,12 +100,12 @@ public class GomokuDriver {
    *  think is basically the loop body for getting information from the 
    *  server and acting upon it. 
    */
-   public static String think(int turn){
-      ArrayList  data;
+   public String think(int turn, ArrayList data){
+      //ArrayList  data;
       String status;
       int depthlimit = 0;
       
-      data = getStatus();
+      //data = this.getStatus();
       status = (String)data.get(1);
       
       if (status == null){
@@ -130,7 +139,9 @@ public class GomokuDriver {
       //System.out.println(result.getScore());
       
       System.out.println("\n");   
-      
+      if (result.getFirstMove()[0] == 0 && result.getFirstMove()[1] == 3){
+    	System.out.println("what");      
+      }
       // Send move
       rc.gridOut.println(String.format("%d %d", result.getFirstMove()[0], result.getFirstMove()[1]));
       return status;

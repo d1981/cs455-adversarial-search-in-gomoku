@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 /* Manual class for testing Boardstate / AlphaBeta evalutions
 *  
 */
@@ -7,7 +9,24 @@ class AlphaBetaDriver{
       grid = grid;
    }
 
+   public static String gridToString(char[][] grid){
+      String arraystring = new String();
+      for (int i=0; i < grid.length; i++){
+         for(int j=0; j < grid[i].length; j++){
+            arraystring = arraystring + grid[i][j];
+         }
+         arraystring = arraystring + "\n";
+      }
+      return arraystring;
+   }
+
    public static void main(String[] args){
+       
+      ArrayList player1history = new ArrayList<ArrayList<Object>>();
+      ArrayList player2history = new ArrayList<ArrayList<Object>>();
+      
+      ArrayList instance = new ArrayList<Object>();
+      
       char[][] grid = new char[9][9];
       
       //grid[0] = new char[]{'x', ' ', ' ',};
@@ -28,6 +47,16 @@ class AlphaBetaDriver{
 
       char player = 'x';
       char opponent = 'o';
+      
+      instance.add(grid);
+      instance.add(new int[]{8,7});
+      player1history.add(instance);
+      
+      
+      
+      String gridstring = gridToString(grid);
+      System.out.println(gridstring);
+      
       
       // Propogate moves / analyze board state / use Alpha Beta to determine best move before timer runs out
       //AlphaBeta ab = new AlphaBeta((char[][])status.get(0), player, opponent);

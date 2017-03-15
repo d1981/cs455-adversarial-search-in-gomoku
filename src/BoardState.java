@@ -362,8 +362,8 @@ class BoardState{
       System.out.println(String.format("opponentfourinrow_open2: %d", opponentfourinrow_open2));
       */
       
-      score += twoinrow_open1   + threeinrow_open1*100 + fourinrow_open1*2000; 
-      score += twoinrow_open2*2 + threeinrow_open2*200 + fourinrow_open2*4000;
+      score += twoinrow_open1   + threeinrow_open1*100 + fourinrow_open1*1000; 
+      score += twoinrow_open2*2 + threeinrow_open2*200 + fourinrow_open2*2000;
       score += opponentthreeinrow_block2*4000 + opponentfourinrow_block2*800000;
       
       score -= (opponenttwoinrow_open1   + opponentthreeinrow_open1*100 + opponentfourinrow_open1*1000);

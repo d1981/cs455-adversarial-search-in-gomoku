@@ -3,10 +3,10 @@ import java.net.*;
 
 
 public class RacketClient {
-    protected Socket racketSocket;			// socket for communicating w/ server
-    protected PrintWriter gridOut;                      // takes care of output stream for sockets
-    protected BufferedReader gridIn;			// bufferedreader for input reading
-    private static final int RACKETPORT = 17033;         // uses port 1237 on localhost  
+    protected Socket racketSocket;			              // socket for communicating w/ server
+    protected PrintWriter gridOut;                       // takes care of output stream for sockets
+    protected BufferedReader gridIn;			         // bufferedreader for input reading
+    
    
     public RacketClient(String h, int p) {
 	   registerWithGrid(h, p);
