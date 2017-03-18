@@ -6,6 +6,80 @@ import java.util.List;
 class DatabaseInterface{
    Connection c = null;
   
+   public String convertGridtoString(char[][] grid){
+      String gridString = "";
+      for (int i=0; i < grid.length; i++){
+         for (int j=0; j < grid[i].length; j++){
+            gridString = gridString + grid[i][j];
+         }
+         if (i != grid.length - 1){
+           gridString = gridString + "n";
+         }
+      }
+      return gridString;
+   }
+   
+   public String swapPlayersInGrid(String inputString){
+      String i = inputString.replace('x','i');
+      String outputString = i.replace('o', 'x');
+      outputString = outputString.replace('i','o');
+      return outputString;
+   }
+   
+   public float learningRate(int freq){
+      return 1000/(1000-freq);
+   }
+   
+   public ArrayList fFunction(String state_string){
+   // f function
+   // argmax a'  f(Q[s',a'], Nsa[s',a']) = / R^+ if n < Nsubscript e 
+   //                 u          n         < actual utility   otherwise
+   //                                      \
+   //
+   // Where R^+ = 2 and Ne = 5           = / 2 if n < 5
+   //                                      < actual utility  otherwise
+   //                                      \
+
+   // Letting sqlite do the heavy lifting here
+   // SELECT *, CASE WHEN count < 5 THEN 2 ELSE value END AS f_value FROM(
+   // SELECT * from qtable INNER JOIN freq ON qtable.state_string = freq.state_string AND qtable.action_x = freq.action_x AND qtable.action_y = freq.action_y
+   // )
+   // ORDER BY f_value DESC LIMIT 1
+   // )
+   String sql = "SELECT *, CASE WHEN count < 5 THEN 2 ELSE value END AS f_value FROM(" +
+                "SELECT * from qtable INNER JOIN freq ON qtable.state_string = freq.state_string AND qtable.action_x = freq.action_x AND qtable.action_y = freq.action_y" +
+                ")" + 
+                "WHERE state_string = ? ORDER BY f_value DESC LIMIT 1";
+   
+   ArrayList instance = new ArrayList<Object>();
+     
+   try{
+     PreparedStatement pstmt = c.prepareStatement(sql);
+     pstmt.setString(1, state_string);
+     
+     ResultSet rs = pstmt.executeQuery();
+     
+     while (rs.next()) {
+        instance.add(rs.getString("state_string")); 
+        instance.add(rs.getInt("count"));
+        instance.add(rs.getInt("value"));
+        instance.add(rs.getFloat("f_value"));
+        instance.add(rs.getInt("action_x"));
+        instance.add(rs.getInt("action_y"));
+        //result.add(instance);
+     }
+     
+   }
+   catch (SQLException e) {
+      System.out.println(e.getMessage());
+   }
+   return instance;
+   }
+
+   
+   //public char[][] convertStringtoGrid(String gridString){   
+   //}
+  
    /* Contructor for database interface
    *  Creates a sqlite interface for use by its 
    *  other methods */
@@ -51,34 +125,72 @@ class DatabaseInterface{
          System.out.println("Opened database successfully");
       } // end Database constructor
       
-      /*
-      *  Retrieve the state from the Qtable
-      */
-   public ArrayList SelectStateFromQTable(String state){
+   /*
+   *  Retrieve the state from the Qtable
+   */
+   public ArrayList selectStateFromQTable(String state, int x, int y){
       ArrayList result = new ArrayList<Object>();
-      String sql = String.format("SELECT * FROM qtable WHERE state_string = %s", state);
+      String sql = String.format("SELECT * FROM qtable WHERE state_string = ? AND action_x = ? AND action_y = ?");
       try{
          PreparedStatement pstmt = c.prepareStatement(sql);
+         pstmt.setString(1, state);
+         pstmt.setInt(2, x);
+         pstmt.setInt(3, y);
+         
          ResultSet rs = pstmt.executeQuery();
          while (rs.next()) {
-            System.out.println(rs.getInt("id") +  "\t" + 
-            rs.getString("state_string") + "\t" +
-            rs.getFloat("value"));
+            ArrayList instance = new ArrayList<Object>();
+            instance.add(rs.getInt("id"));
+            instance.add(rs.getString("state_string")); 
+            instance.add(rs.getInt("action_x"));
+            instance.add(rs.getInt("action_y"));
+            instance.add(rs.getFloat("value"));
+            result.add(instance);
          }   
-         result.add(rs.getString("state_string")); 
-         result.add(rs.getFloat("value"));
+         
       }
       catch (SQLException e){
          System.out.println(e.getMessage());
       }
    return result;
    } // end SelectStateFromQTable
-      
+   
+   /*
+   *  Retrieve the states from the freq table
+   */ 
+   public ArrayList selectStateFromFreqTable(String state, int x, int y){
+      ArrayList result = new ArrayList<Object>();
+      String sql = String.format("SELECT * FROM freq WHERE state_string = ? AND action_x = ? AND action_y = ?");
+      try{
+         PreparedStatement pstmt = c.prepareStatement(sql);
+         pstmt.setString(1, state);
+         pstmt.setInt(2, x);
+         pstmt.setInt(3, y);
+         
+         ResultSet rs = pstmt.executeQuery();
+         while (rs.next()) {
+            ArrayList instance = new ArrayList<Object>();
+            instance.add(rs.getInt("id"));
+            instance.add(rs.getString("state_string"));
+            instance.add(rs.getInt("action_x"));
+            instance.add(rs.getInt("action_y")); 
+            instance.add(rs.getInt("count"));
+            result.add(instance);
+         }   
+         
+      }
+      catch (SQLException e){
+         System.out.println(e.getMessage());
+      }
+   return result;
+   } // end selectStateFromFreqTable
+    
+     
    /* Increments the frequency table given the unqiue
    *  combination of state and action (x,y)
    *  If row doesn't exist yet, it creates it
    */
-   public void incrementStateFreq(Connection c, String state, int x, int y){
+   public void incrementStateFreq(String state, int x, int y){
       // Check if state action pair exists
       String sql = "SELECT id, state_string, action_x, action_y, count FROM freq WHERE state_string = ? AND action_x = ? AND action_y = ?";
       ArrayList instance = new ArrayList<Object>();
@@ -104,7 +216,7 @@ class DatabaseInterface{
       
       // If not, create it and set it to 1
       if (instance.size() == 0){
-         String result = incrementStateFreq(c, (String)instance.get(1), (int)instance.get(3), (int)instance.get(4), 1);
+         incrementStateFreq((String)instance.get(1), (int)instance.get(3), (int)instance.get(4));
       }
       // Else, increment the value and update the row
       try{
@@ -121,5 +233,122 @@ class DatabaseInterface{
       catch (SQLException e){
          System.out.println(e.getMessage());
       }
+   }
+   
+   
+   public ArrayList selectStateFromFreq(Connection c, String state, int x, int y){
+     String sql = "SELECT id, state_string, action_x, action_y, count FROM freq WHERE state_string = ? AND action_x = ? AND action_y = ?";
+     ArrayList result = new ArrayList<Object>();
+     
+     try{
+        PreparedStatement pstmt = c.prepareStatement(sql);
+        pstmt.setString(1, state);
+        pstmt.setInt(2, x);
+        pstmt.setInt(3, y);
+        ResultSet rs = pstmt.executeQuery();
+
+        while (rs.next()) {
+           ArrayList instance = new ArrayList<Object>();
+           instance.add(rs.getString("state_string")); 
+           instance.add(rs.getFloat("count"));
+           instance.add(rs.getInt("action_x"));
+           instance.add(rs.getInt("action_y"));
+           result.add(instance);
+        }
+        
+      }
+      catch (SQLException e) {
+         System.out.println(e.getMessage());
+      }
+      return result;
+   }
+   
+   public String insertStateAndActionsFreq(String state, int action_x, int action_y, int count){
+      String sql = "INSERT INTO freq(state_string, action_x, action_y, count) VALUES(?,?,?,?)";
+      
+      // Check if it already exists first
+      ArrayList result = selectStateFromFreqTable(state, action_x, action_y);
+      if (result.size() == 0){
+         try{
+            PreparedStatement pstmt = c.prepareStatement(sql);
+            pstmt.setString(1, state);
+            pstmt.setInt(2, action_x);
+            pstmt.setInt(3, action_y);
+            pstmt.setInt(4, count);
+            pstmt.executeUpdate();
+         }
+         catch (SQLException e){
+            System.out.println(String.format("Error: %s", e.getMessage()));
+         }      
+      }
+      return new String("Freq table Insert Successful");
+   }
+   
+   public String insertStateAndActionsQTable(String state, int action_x, int action_y, float value){
+      String sql = "INSERT INTO qtable(state_string, action_x, action_y, value) VALUES(?,?,?,?)";
+      
+      // Check if it already exists first
+      ArrayList result = selectStateFromQTable(state, action_x, action_y);
+      if (result.size() == 0){
+         try{
+            PreparedStatement pstmt = c.prepareStatement(sql);
+            pstmt.setString(1, state);
+            pstmt.setInt(2, action_x);
+            pstmt.setInt(3, action_y);
+            pstmt.setFloat(4, value);
+            pstmt.executeUpdate();
+         }
+         catch (SQLException e){
+            System.out.println(String.format("Error: %s", e.getMessage()));
+         }      
+      }
+      return new String("Qtable Insert Successful");
+   }
+   
+   public String insertStateAndFreq(String state, int action_x, int action_y, int count){
+      String sql = "INSERT INTO freq(state_string, action_x, action_y, count) VALUES(?,?,?,?)";
+      System.out.println(String.format("%d %d %d \n%s", action_x,action_y,count,state));
+      try{
+         PreparedStatement pstmt = c.prepareStatement(sql);
+         pstmt.setString(1, state);
+         pstmt.setInt(2, action_x);
+         pstmt.setInt(3, action_y);
+         pstmt.setInt(4, count);
+         pstmt.executeUpdate();
+      }
+      catch (SQLException e){
+         System.out.println(String.format("Error: %s", e.getMessage()));
+      }
+      
+      return new String("Update successful");
+   }
+   
+   public String updateQStateValue(String state, int action_x, int action_y, float value){
+      // try and get the unique state and actions first...
+      ArrayList result = selectStateFromQTable(state, action_x, action_y);
+      String sql = "";
+      
+      if (result.size() > 0){
+        // Exists, use update
+        sql = "UPDATE qtable SET value = ? WHERE state_string = ? AND action_x = ? AND action_y = ?";
+      }
+      
+      else {
+        // Doesn't exist, so create it
+        sql = "INSERT INTO qtable(value, state_string, action_x, action_y) VALUES(?,?,?,?)";
+      }
+      
+      try{
+         PreparedStatement pstmt = c.prepareStatement(sql);
+         pstmt.setFloat(1, value);
+         pstmt.setString(2, state); 
+         pstmt.setInt(3, action_x); 
+         pstmt.setInt(4, action_y); 
+         pstmt.executeUpdate();
+      }
+      catch (SQLException e){
+         System.out.println(String.format("Error: %s", e.getMessage()));
+      }
+   return String.format("Updated");
    }
 }
