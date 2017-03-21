@@ -31,14 +31,18 @@ class DatabaseTester{
       grid[1] = new char[]{' ', 'o', ' ',};
       grid[2] = new char[]{'x', 'x', 'x',};
     
-      String result = db.convertGridtoString(grid);
+      char[][] grid2 = db.convertStringtoGrid(new String("xxxx  o  no        n x   o   n         n         n         n     o   n o       n         "));
+      db.mutateGrid(grid2, 0, 4, 'x');
+       
+      System.out.println("complete");
+      //String result = db.convertGridtoString(grid);
       //System.out.println(result);
       //db.insertStateAndActionsQTable(result, 1, 1, 200);
       //db.insertStateAndFreq(result, 1, 1, 1);
       //ArrayList test = db.fFunction(result);
       // Test swapping players in state
-      System.out.println(db.swapPlayersInGrid(result));
+      //System.out.println(db.swapPlayersInGrid(result));
       
-      db.incrementStateFreq(result, 1, 1);
+      //db.incrementStateFreq(result, 1, 1);
    }// end main
 }

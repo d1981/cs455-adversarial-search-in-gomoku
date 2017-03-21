@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 class DatabaseInterface{
+   public final int GRIDSIZE = 9;
+   
    Connection c = null;
   
    public String convertGridtoString(char[][] grid){
@@ -19,6 +21,49 @@ class DatabaseInterface{
       return gridString;
    }
    
+   public char[][] convertStringtoGrid(String gridString){
+     // check how big the grid is
+     char[][] grid; 
+     
+     int lineSize = 0;
+      
+     grid = new char[GRIDSIZE][GRIDSIZE];
+     
+     int j = 0;
+     int k = 0;
+     for (int i=0; i < gridString.length() - 1; i++){
+         char nextChar = gridString.charAt(i);
+         if (nextChar == 'n'){
+            j=j + 1;
+            k=0;
+         }
+         else{
+            grid[j][k]=nextChar;
+            k++;
+         }
+         
+      }
+      return grid;
+   }
+   
+   public void mutateGrid(char[][] grid, int action_x, int action_y, char player){
+      grid[action_x][action_y] = player;
+   }
+   
+   public char[][] swapPlayersInGridArray(char[][] grid){
+      for (int i=0; i<grid.length - 1; i++){
+         for (int j=0; j<grid[i].length; j++){
+            if (grid[i][j] == 'x'){
+               grid[i][j] = 'o';
+            }
+            else if (grid[i][j] == 'o'){
+               grid[i][j] = 'x';
+            }
+         }
+      }
+      return grid;
+   }
+   
    public String swapPlayersInGrid(String inputString){
       String i = inputString.replace('x','i');
       String outputString = i.replace('o', 'x');
@@ -27,7 +72,97 @@ class DatabaseInterface{
    }
    
    public float learningRate(int freq){
+      if (freq == 1000){
+         return 1000;
+      }
       return 1000/(1000-freq);
+   }
+   
+   public int retrieveStatesFromQtable(String gridstring){
+      String sql  = "SELECT count(*) FROM qtable WHERE state_string = ? \n";
+      int count = 0;
+      
+      try{
+         PreparedStatement pstmt = c.prepareStatement(sql);
+         pstmt.setString(1, gridstring);
+         ResultSet rs = pstmt.executeQuery();
+     
+         while (rs.next()) {
+           count = rs.getInt("count(*)");
+        }
+      }
+      
+      catch (SQLException e){
+         System.out.println(String.format("Error: %s", e.getMessage()));
+      }
+      
+      return count;
+   }
+   
+   public int retrieveStatesFromFreq(String gridstring){
+      String sql  = "SELECT count(*) FROM freq WHERE state_string = ? \n";
+      int count = 0;
+      
+      try{
+         PreparedStatement pstmt = c.prepareStatement(sql);
+         pstmt.setString(1, gridstring);
+         ResultSet rs = pstmt.executeQuery();
+     
+         while (rs.next()) {
+           count = rs.getInt("count(*)");
+        }
+      }
+      
+      catch (SQLException e){
+         System.out.println(String.format("Error: %s", e.getMessage()));
+      }
+      
+      return count;
+   }
+   
+   public String propogateStateLegalActions(char[][] grid, boolean player1isX){
+      
+            
+      String gridstring;
+      if (player1isX){
+         gridstring = convertGridtoString(grid);
+      }
+      else {
+         gridstring = swapPlayersInGrid(convertGridtoString(grid));
+      }
+      
+      // check if states exist already
+      if (!(retrieveStatesFromQtable(gridstring) >= 81 && retrieveStatesFromFreq(gridstring) >=81)){
+
+         for (int i=0; i < grid.length; i++){
+             for (int j=0; j < grid[i].length; j++){
+             if (grid[i][j] == ' '){
+                String sql  = "INSERT INTO qtable(state_string, action_x, action_y, value) VALUES(?,?,?,?);\n";
+                String sql2 = "INSERT INTO freq(state_string, action_x, action_y, count) VALUES(?,?,?,?);\n";     
+                
+                try{
+                   PreparedStatement pstmt = c.prepareStatement(sql);
+                   PreparedStatement pstmt2 = c.prepareStatement(sql2);
+                   pstmt.setString(1, gridstring);
+                   pstmt.setInt(2, i);
+                   pstmt.setInt(3, j);
+                   pstmt.setFloat(4, (float)0.0);
+                   
+                   pstmt2.setString(1, gridstring);
+                   pstmt2.setInt(2, i);
+                   pstmt2.setInt(3, j);
+                   pstmt2.setInt(4, 0);
+                   pstmt.executeUpdate();
+                   pstmt2.executeUpdate();
+                }
+                   catch (SQLException e){
+                System.out.println(String.format("Error: %s", e.getMessage()));
+                }
+              }
+           }
+         }     
+      }     
+      return new String("Propogation Insert Successful");
    }
    
    public ArrayList fFunction(String state_string){
@@ -46,7 +181,7 @@ class DatabaseInterface{
    // )
    // ORDER BY f_value DESC LIMIT 1
    // )
-   String sql = "SELECT *, CASE WHEN count < 5 THEN 2 ELSE value END AS f_value FROM(" +
+   String sql = "SELECT *, CASE WHEN count < 2 THEN 5 ELSE value END AS f_value FROM(" +
                 "SELECT * from qtable INNER JOIN freq ON qtable.state_string = freq.state_string AND qtable.action_x = freq.action_x AND qtable.action_y = freq.action_y" +
                 ")" + 
                 "WHERE state_string = ? ORDER BY f_value DESC LIMIT 1";

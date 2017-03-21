@@ -15,7 +15,7 @@ public class GomokuDriver {
    private static int gridWidth;                        // Width of the Gomoku Board
    private static int gridHeight;                       // Height of the Gomoku Board
    protected RacketClient rc;
-   
+     
    public int getGridWidth(){
        return gridWidth;
    }
